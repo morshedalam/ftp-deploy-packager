@@ -4,6 +4,10 @@ A lightweight Bash tool that generates incremental FTP deployment packages from 
 
 It creates deployment-ready folders and ZIP archives containing only the files changed since the last deployment, making it ideal for shared hosting environments where deployments are performed via FTP.
 
+## Requirement
+
+- lftp (required for FTP deployment)
+
 ## Installation & configuration:
 
 - Step1: Clone or download the script
@@ -19,24 +23,41 @@ It creates deployment-ready folders and ZIP archives containing only the files c
     git branch --set-upstream-to=origin/main
     ```
 
+- FTP Configuration
+
+    ```text
+    export FTP_HOST="ftp.example.com"
+    export FTP_USER="username"
+    export FTP_PASSWORD="password"
+    export FTP_REMOTE_DIR="/public_html"
+    ```
+
+    You may place them in your shell profile:
+
+    ```text
+    ~/.bashrc
+    ~/.zshrc
+    ```
+    Then reload:
+
+    ```text
+    source ~/.bashrc
+    ```
+
 ## Usage:
 
 Run deployment from outside or anywhere:
 
 ```text
-./make_deploy.sh <project-path> <mode>
+./make_deploy.sh <repo-path> <unpushed|since-push> [--deploy] [site-name]
 ```
 
-- Unpushed changes only:
+Example:
 
 ```text
-./make_deploy.sh {project-folder-path} unpushed
-```
+./make_deploy.sh ../repo-path since-push
 
-- All changes since last push:
-
-```text
-./make_deploy.sh {project-folder-path} since-push
+./make_deploy.sh ../repo-path since-push --deploy folermela
 ```
 
 ## Features:
