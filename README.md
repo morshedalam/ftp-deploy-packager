@@ -7,6 +7,9 @@ It creates deployment-ready folders and ZIP archives containing only the files c
 ## Requirement
 
 - lftp (required for FTP deployment)
+    ```text
+    brew install lftp
+    ```
 
 ## Installation & configuration:
 
@@ -23,26 +26,7 @@ It creates deployment-ready folders and ZIP archives containing only the files c
     git branch --set-upstream-to=origin/main
     ```
 
-- FTP Configuration
-
-    ```text
-    export FTP_HOST="ftp.example.com"
-    export FTP_USER="username"
-    export FTP_PASSWORD="password"
-    export FTP_REMOTE_DIR="/public_html"
-    ```
-
-    You may place them in your shell profile:
-
-    ```text
-    ~/.bashrc
-    ~/.zshrc
-    ```
-    Then reload:
-
-    ```text
-    source ~/.bashrc
-    ```
+- Set FTP Configuration on .deploy.env
 
 ## Usage:
 
