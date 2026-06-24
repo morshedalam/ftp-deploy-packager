@@ -8,7 +8,15 @@ It creates deployment-ready folders and ZIP archives containing only the files c
 
 - lftp (required for FTP deployment)
     ```text
+    # macOS
     brew install lftp
+  
+    # Ubuntu / Debian
+    sudo apt update
+    sudo apt install lftp -y
+  
+    # Linux / CentOS
+    sudo yum install lftp -y
     ```
 
 ## Installation & configuration:
