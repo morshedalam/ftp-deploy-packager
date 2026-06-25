@@ -221,7 +221,7 @@ Deleted      : $(wc -l < "$DELETED_FILE")
 EOF
 
 ###############################################################################
-# FTP
+# FTP DEPLOYMENT
 ###############################################################################
 
 FTP_STATUS="NOT_DEPLOYED"
@@ -238,6 +238,9 @@ if [[ "$DEPLOY_FTP" == true ]]; then
     FTP_PASSWORD="${!FTP_PASSWORD_VAR:-}"
     FTP_REMOTE_DIR="${!FTP_REMOTE_DIR_VAR:-}"
 
+    FTP_HOST="${FTP_HOST#sftp://}"
+    FTP_HOST="${FTP_HOST#ftp://}"
+
     MISSING=()
 
     [[ -z "$FTP_HOST" ]] && MISSING+=("$FTP_HOST_VAR")
@@ -253,6 +256,7 @@ if [[ "$DEPLOY_FTP" == true ]]; then
         echo
 
         exit 1
+
     fi
 
     if ! command -v lftp >/dev/null 2>&1; then
@@ -261,30 +265,63 @@ if [[ "$DEPLOY_FTP" == true ]]; then
     fi
 
     echo
-    echo "Starting FTP deployment..."
+    echo "Starting deployment..."
     echo "Site   : $SITE_NAME"
     echo "Host   : $FTP_HOST"
     echo "Remote : $FTP_REMOTE_DIR"
     echo
 
-    if lftp -u "$FTP_USER","$FTP_PASSWORD" "$FTP_HOST" <<EOF
-set ssl:verify-certificate no
-set ftp:ssl-allow no
+    ###########################################################################
+    # BUILD DELETE COMMANDS
+    ###########################################################################
 
-mkdir -p "$FTP_REMOTE_DIR/$PACKAGE_NAME"
+    DELETE_CMDS=""
+
+    if [[ -f "$DELETED_FILE" ]]; then
+
+        while IFS= read -r file; do
+
+            [[ -z "$file" ]] && continue
+
+            DELETE_CMDS="${DELETE_CMDS}
+rm -f \"$FTP_REMOTE_DIR/$file\""
+
+        done < "$DELETED_FILE"
+
+    fi
+
+    ###########################################################################
+    # SINGLE CONNECTION DEPLOY
+    ###########################################################################
+
+    if lftp -u "$FTP_USER","$FTP_PASSWORD" "sftp://$FTP_HOST" <<EOF
+
+set sftp:auto-confirm yes
+set ssl:verify-certificate no
+set xfer:clobber yes
+set cmd:trace no
+
+echo Uploading files...
 
 mirror -R \
-"$PACKAGE_DIR" \
-"$FTP_REMOTE_DIR/$PACKAGE_NAME"
+    --verbose \
+    --overwrite \
+    "$PACKAGE_DIR" \
+    "$FTP_REMOTE_DIR"
+
+echo Removing deleted files...
+
+$DELETE_CMDS
 
 bye
+
 EOF
     then
 
         FTP_STATUS="SUCCESS"
 
         echo
-        echo "FTP deployment completed."
+        echo "Deployment completed successfully."
         echo
 
     else
@@ -292,7 +329,7 @@ EOF
         FTP_STATUS="FAILED"
 
         echo
-        echo "FTP deployment failed."
+        echo "Deployment failed."
         echo
 
     fi

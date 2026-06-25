@@ -1,8 +1,6 @@
 # FTP Deploy Packager
 
-A lightweight Bash tool that generates incremental FTP deployment packages from Git repositories.
-
-It creates deployment-ready folders and ZIP archives containing only the files changed since the last deployment, making it ideal for shared hosting environments where deployments are performed via FTP.
+A lightweight Bash tool that generates incremental FTP deployment packages from Git changes, helping synchronize servers by uploading changed files and removing deleted files.
 
 ## Requirement
 
